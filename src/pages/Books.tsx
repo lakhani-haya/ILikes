@@ -1,16 +1,56 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SearchBar } from '../components/SearchBar';
 import { SearchResults } from '../components/SearchResults';
-import { searchBooks } from '../providers/booksGoogle';
+import { searchBooks, getFeaturedBooksByIsbn } from '../providers/booksGoogle';
 import { SearchResult } from '../lib/types';
 import { useLibrary } from '../hooks/useLibrary';
+
+const FEATURED_ISBNS = [
+  '9780132350884',
+  '9780201616224',
+  '9780735211292',
+  '9781455586691',
+  '9780857197689',
+  '9780062316097',
+  '9780399590504',
+  '9780061122415',
+];
 
 export default function BooksPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  
+  const [featured, setFeatured] = useState<SearchResult[]>([]);
+  const [featuredLoading, setFeaturedLoading] = useState(false);
+  const [featuredError, setFeaturedError] = useState<string | null>(null);
+  
   const { addFromSearch } = useLibrary();
+
+  useEffect(() => {
+    const loadFeatured = async () => {
+      const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+      if (!apiKey || apiKey === 'YOUR_KEY_HERE') {
+        setFeaturedError('Google Books API key is missing. Add VITE_GOOGLE_BOOKS_API_KEY to .env and restart npm run dev.');
+        return;
+      }
+
+      setFeaturedLoading(true);
+      setFeaturedError(null);
+      try {
+        const data = await getFeaturedBooksByIsbn(FEATURED_ISBNS);
+        setFeatured(data);
+      } catch (err) {
+        console.error(err);
+        setFeaturedError('Unable to load featured books.');
+      } finally {
+        setFeaturedLoading(false);
+      }
+    };
+
+    loadFeatured();
+  }, []);
 
   const handleSearch = async (query: string) => {
     setMessage('');
@@ -28,7 +68,11 @@ export default function BooksPage() {
     }
   };
 
-  const handleSelect = (result: SearchResult) => {
+  const handleSelectFeatured = (result: SearchResult) => {
+    addFromSearch('book', result);
+  };
+
+  const handleSelectSearch = (result: SearchResult) => {
     addFromSearch('book', result);
     setMessage('Added to your library');
   };
@@ -40,13 +84,29 @@ export default function BooksPage() {
         <p className="text-gray-600 mt-2">Explore and review your reads.</p>
       </header>
 
+      {featuredError && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-6">
+          <p className="text-amber-700 text-sm">{featuredError}</p>
+        </div>
+      )}
+
+      {!featuredError && (
+        <>
+          <h2 className="text-2xl font-semibold tracking-tight mb-4">Featured Books</h2>
+          <div className="mb-8">
+            <SearchResults results={featured} onSelect={handleSelectFeatured} isLoading={featuredLoading} error={undefined} />
+          </div>
+        </>
+      )}
+
+      <h2 className="text-2xl font-semibold tracking-tight mb-4 mt-8">Search</h2>
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm mb-6">
         <SearchBar onSearch={handleSearch} placeholder="Search books..." isLoading={isLoading} />
         {message && !error && <p className="mt-3 text-sm text-gray-700">{message}</p>}
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
       </div>
 
-      <SearchResults results={results} onSelect={handleSelect} isLoading={isLoading} error={error || undefined} />
+      <SearchResults results={results} onSelect={handleSelectSearch} isLoading={isLoading} error={error || undefined} />
     </section>
   );
 }

@@ -83,3 +83,52 @@ export async function getBookDetails(bookId: string): Promise<DetailsResult | nu
     return null;
   }
 }
+
+export async function getFeaturedBooksByIsbn(isbns: string[]): Promise<SearchResult[]> {
+  const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+  if (!apiKey || apiKey === 'YOUR_KEY_HERE') {
+    return [];
+  }
+
+  try {
+    const responses = await Promise.allSettled(
+      isbns.map(isbn =>
+        axios.get<{ items?: ApiBook[] }>(BASE_URL, {
+          params: {
+            q: `isbn:${isbn}`,
+            maxResults: 1,
+            key: apiKey,
+          },
+        })
+      )
+    );
+
+    const mapped: SearchResult[] = responses
+      .flatMap(result => {
+        if (result.status !== 'fulfilled' || !result.value.data.items?.length) {
+          return [];
+        }
+
+        const book = result.value.data.items[0];
+        const volumeInfo = book.volumeInfo || {};
+        const title = volumeInfo.title || 'Untitled';
+
+        return [{
+          id: book.id,
+          title,
+          year: volumeInfo.publishedDate ? formatYear(volumeInfo.publishedDate) : '',
+          image: getImageUrl(volumeInfo.imageLinks?.thumbnail),
+          creator: volumeInfo.authors?.[0] || 'Unknown',
+          genres: volumeInfo.categories || [],
+          description: volumeInfo.description || '',
+          provider: 'google-books',
+          externalId: book.id,
+        }];
+      });
+
+    return mapped;
+  } catch (error) {
+    console.error('Error fetching featured books:', error);
+    return [];
+  }
+}
