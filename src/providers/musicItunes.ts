@@ -1,0 +1,96 @@
+import axios from 'axios';
+import { SearchResult, DetailsResult, ApiMusic } from '../lib/types';
+import { formatYear, getImageUrl } from '../lib/utils';
+
+const SEARCH_URL = 'https://itunes.apple.com/search';
+const LOOKUP_URL = 'https://itunes.apple.com/lookup';
+
+function formatRuntime(ms?: number): string | undefined {
+  if (!ms) return undefined;
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
+export async function searchMusic(query: string): Promise<SearchResult[]> {
+  const trimmedQuery = query.trim();
+  if (!trimmedQuery) return [];
+
+  try {
+    const response = await axios.get<{
+      results: ApiMusic[];
+    }>(SEARCH_URL, {
+      params: {
+        term: trimmedQuery,
+        media: 'music',
+        entity: 'musicTrack',
+        limit: 20,
+      },
+    });
+
+    return response.data.results
+      .filter(item => Boolean(item.trackId))
+      .map(item => {
+        const id = item.trackId!.toString();
+        const title = item.trackName || item.collectionName || 'Untitled';
+        const creator = item.artistName || 'Unknown';
+
+        return {
+          id,
+          title,
+          image: getImageUrl(item.artworkUrl100),
+          year: item.releaseDate ? formatYear(item.releaseDate) : 'Unknown',
+          creator,
+          genres: item.primaryGenreName ? [item.primaryGenreName] : [],
+          description: item.collectionName ? `${creator} — ${item.collectionName}` : creator,
+          provider: 'itunes',
+          externalId: id,
+        };
+      });
+  } catch (error) {
+    console.error('Error searching music:', error);
+    return [];
+  }
+}
+
+export async function getMusicDetails(trackId: string): Promise<DetailsResult | null> {
+  if (!trackId.trim()) return null;
+
+  try {
+    const response = await axios.get<{
+      results: ApiMusic[];
+    }>(LOOKUP_URL, {
+      params: {
+        id: trackId,
+        entity: 'musicTrack',
+      },
+    });
+
+    if (!response.data.results.length) {
+      return null;
+    }
+
+    const item = response.data.results.find(result => result.trackId?.toString() === trackId) || response.data.results[0];
+    if (!item.trackId) return null;
+
+    const id = item.trackId.toString();
+    const creator = item.artistName || 'Unknown';
+
+    return {
+      id,
+      title: item.trackName || item.collectionName || 'Untitled',
+      image: getImageUrl(item.artworkUrl100),
+      year: item.releaseDate ? formatYear(item.releaseDate) : 'Unknown',
+      creator,
+      genres: item.primaryGenreName ? [item.primaryGenreName] : [],
+      description: item.collectionName ? `${creator} — ${item.collectionName}` : creator,
+      provider: 'itunes',
+      externalId: id,
+      runtime: formatRuntime(item.trackTimeMillis),
+    };
+  } catch (error) {
+    console.error('Error fetching music details:', error);
+    return null;
+  }
+}
