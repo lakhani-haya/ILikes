@@ -94,3 +94,55 @@ export async function getMusicDetails(trackId: string): Promise<DetailsResult | 
     return null;
   }
 }
+
+function upgradeImageUrl(url?: string): string {
+  if (!url) return '';
+  return url.replace('100x100', '600x600');
+}
+
+export async function getFeaturedMusic(): Promise<SearchResult[]> {
+  const terms = ['taylor swift', 'drake', 'coldplay', 'daft punk', 'billie eilish'];
+
+  try {
+    const responses = await Promise.allSettled(
+      terms.map(term =>
+        axios.get<{ results: ApiMusic[] }>(SEARCH_URL, {
+          params: {
+            term,
+            entity: 'album',
+            limit: 5,
+          },
+        })
+      )
+    );
+
+    const allResults: ApiMusic[] = [];
+    responses.forEach(result => {
+      if (result.status === 'fulfilled' && result.value.data.results) {
+        allResults.push(...result.value.data.results);
+      }
+    });
+
+    const seen = new Set<number>();
+    const uniqueAlbums = allResults.filter(item => {
+      if (!item.collectionId || seen.has(item.collectionId)) return false;
+      seen.add(item.collectionId);
+      return true;
+    });
+
+    return uniqueAlbums.map(item => ({
+      id: String(item.collectionId || ''),
+      title: item.collectionName || 'Untitled',
+      year: item.releaseDate?.slice(0, 4) ?? '',
+      image: upgradeImageUrl(item.artworkUrl100),
+      creator: item.artistName || 'Unknown',
+      genres: item.primaryGenreName ? [item.primaryGenreName] : [],
+      description: '',
+      provider: 'itunes',
+      externalId: String(item.collectionId || ''),
+    }));
+  } catch (error) {
+    console.error('Error fetching featured music:', error);
+    return [];
+  }
+}
