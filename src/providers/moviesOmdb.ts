@@ -5,14 +5,13 @@ import { getImageUrl } from '../lib/utils';
 const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 const BASE_URL = 'https://www.omdbapi.com/';
 
-if (!API_KEY || API_KEY === 'YOUR_KEY_HERE') {
-  console.warn('VITE_OMDB_API_KEY not configured. Movies search will not work.');
+const missingKey = !API_KEY || API_KEY === 'YOUR_KEY_HERE';
+if (missingKey) {
+  console.warn('OMDb API key not configured. Movies search will be disabled.');
 }
 
 export async function searchMovies(query: string): Promise<SearchResult[]> {
-  if (!API_KEY || API_KEY === 'YOUR_KEY_HERE') {
-    return [];
-  }
+  if (missingKey) return [];
 
   const trimmedQuery = query.trim();
   if (!trimmedQuery) return [];
@@ -31,6 +30,9 @@ export async function searchMovies(query: string): Promise<SearchResult[]> {
     });
 
     if (response.data.Response === 'False' || !response.data.Search) {
+      if (response.data.Error?.toLowerCase().includes('invalid api key')) {
+        console.warn('OMDb API key rejected by server.');
+      }
       return [];
     }
 
@@ -52,9 +54,7 @@ export async function searchMovies(query: string): Promise<SearchResult[]> {
 }
 
 export async function getMovieDetails(imdbId: string): Promise<DetailsResult | null> {
-  if (!API_KEY || API_KEY === 'YOUR_KEY_HERE') {
-    return null;
-  }
+  if (missingKey) return null;
 
   try {
     const response = await axios.get<ApiMovie>(BASE_URL, {
@@ -63,6 +63,14 @@ export async function getMovieDetails(imdbId: string): Promise<DetailsResult | n
         apikey: API_KEY,
       },
     });
+
+    if ((response.data as { Response?: string; Error?: string }).Response === 'False') {
+      const errMsg = (response.data as { Error?: string }).Error || '';
+      if (errMsg.toLowerCase().includes('invalid api key')) {
+        console.warn('OMDb API key rejected by server.');
+      }
+      return null;
+    }
 
     const genres = response.data.Genre
       ? response.data.Genre.split(',').map(g => g.trim()).filter(Boolean)
