@@ -25,12 +25,12 @@ export function SearchBar({ onSearch, placeholder = 'Search...', isLoading = fal
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
           disabled={isLoading}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 rounded-full border-zinc-200 bg-white px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-zinc-900/10 disabled:bg-zinc-50"
         />
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+          className="rounded-full bg-zinc-900 text-white hover:bg-zinc-800 px-5 py-2.5 font-medium disabled:bg-zinc-400 transition"
         >
           {isLoading ? 'Searching...' : 'Search'}
         </button>

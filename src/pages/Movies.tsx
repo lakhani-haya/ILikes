@@ -119,35 +119,34 @@ export default function MoviesPage() {
   };
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-8">
-      <header className="mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight">Movies</h1>
-        <p className="text-gray-600 mt-2">Find and track your favorite films.</p>
+    <section className="max-w-6xl mx-auto px-6 py-10">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Movies</h1>
+        <p className="text-zinc-600 mt-2">Find and track your favorite films.</p>
       </header>
 
       {featuredError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-6">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl mb-8">
           <p className="text-red-700 text-sm">{featuredError}</p>
         </div>
       )}
 
       {!featuredError && (
-        <>
-          <h2 className="text-2xl font-semibold tracking-tight mb-4">Featured Movies</h2>
-          <div className="mb-8">
-            <SearchResults results={featured} onSelect={handleSelectFeatured} isLoading={featuredLoading} error={undefined} />
-          </div>
-        </>
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-900 mb-5">Featured Movies</h2>
+          <SearchResults results={featured} onSelect={handleSelectFeatured} isLoading={featuredLoading} error={undefined} />
+        </div>
       )}
 
-      <h2 className="text-2xl font-semibold tracking-tight mb-4 mt-8">Search</h2>
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm mb-6">
-        <SearchBar onSearch={handleSearch} placeholder="Search movies..." isLoading={isLoading} />
-        {message && !error && <p className="mt-3 text-sm text-gray-700">{message}</p>}
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      <div className="mb-12">
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-900 mb-5">Search</h2>
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm mb-6">
+          <SearchBar onSearch={handleSearch} placeholder="Search movies..." isLoading={isLoading} />
+          {message && !error && <p className="mt-3 text-sm text-zinc-600">{message}</p>}
+          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        </div>
+        <SearchResults results={results} onSelect={handleSelectSearch} isLoading={isLoading} error={error || undefined} />
       </div>
-
-      <SearchResults results={results} onSelect={handleSelectSearch} isLoading={isLoading} error={error || undefined} />
     </section>
   );
 }
