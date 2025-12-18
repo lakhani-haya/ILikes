@@ -23,13 +23,13 @@ export async function searchMovies(query: string): Promise<SearchResult[]> {
       Error?: string;
     }>(BASE_URL, {
       params: {
-        s: trimmedQuery,
+        s: encodeURIComponent(trimmedQuery),
         type: 'movie',
         apikey: API_KEY,
       },
     });
 
-    if (response.data.Response === 'False' || !response.data.Search) {
+    if (response.data.Response !== 'True' || !response.data.Search) {
       if (response.data.Error?.toLowerCase().includes('invalid api key')) {
         console.warn('OMDb API key rejected by server.');
       }
@@ -39,8 +39,8 @@ export async function searchMovies(query: string): Promise<SearchResult[]> {
     return response.data.Search.map(movie => ({
       id: movie.imdbID,
       title: movie.Title,
-      image: getImageUrl(movie.Poster),
-      year: movie.Year || 'Unknown',
+      year: movie.Year,
+      image: !movie.Poster || movie.Poster === 'N/A' ? '' : movie.Poster,
       creator: 'Unknown',
       genres: [],
       description: '',
