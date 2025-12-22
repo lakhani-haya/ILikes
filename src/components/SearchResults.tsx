@@ -8,9 +8,10 @@ interface SearchResultsProps {
   isLoading?: boolean;
   error?: string;
   addedIds?: Set<string>;
+  ratingById?: Map<string, number | null>;
 }
 
-export function SearchResults({ results, onSelect, isLoading = false, error, addedIds = new Set() }: SearchResultsProps) {
+export function SearchResults({ results, onSelect, isLoading = false, error, addedIds = new Set(), ratingById = new Map() }: SearchResultsProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -55,6 +56,7 @@ export function SearchResults({ results, onSelect, isLoading = false, error, add
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {results.map(result => {
         const isAdded = addedIds.has(result.externalId);
+        const rating = ratingById.get(result.externalId) ?? null;
         return (
           <button
             key={result.id}
@@ -69,21 +71,27 @@ export function SearchResults({ results, onSelect, isLoading = false, error, add
               />
               {/* Gradient overlay for legibility */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-              {/* Add/Added button */}
+              {/* Hover pill */}
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                {isAdded ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-500/95 backdrop-blur text-white text-xs font-semibold rounded-full shadow-lg">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Added
-                  </span>
-                ) : (
+                {!isAdded && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/95 backdrop-blur text-zinc-900 text-xs font-semibold rounded-full shadow-lg">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
                     </svg>
                     Add
+                  </span>
+                )}
+                {isAdded && rating !== null && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-900/90 text-white text-xs font-semibold rounded-full shadow-lg">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.01 3.104a1 1 0 00.95.69h3.263c.969 0 1.371 1.24.588 1.81l-2.64 1.918a1 1 0 00-.364 1.118l1.01 3.104c.3.921-.755 1.688-1.54 1.118l-2.64-1.918a1 1 0 00-1.176 0l-2.64 1.918c-.784.57-1.838-.197-1.539-1.118l1.01-3.104a1 1 0 00-.364-1.118L2.24 8.531c-.783-.57-.38-1.81.588-1.81h3.263a1 1 0 00.95-.69l1.008-3.104z" />
+                    </svg>
+                    {rating.toFixed(1)}
+                  </span>
+                )}
+                {isAdded && rating === null && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/95 backdrop-blur text-zinc-800 text-xs font-semibold rounded-full shadow-lg">
+                    Not rated
                   </span>
                 )}
               </div>

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SearchBar } from '../components/SearchBar';
 import { SearchResults } from '../components/SearchResults';
 import { searchMovies } from '../providers/moviesOmdb';
@@ -31,10 +32,17 @@ export default function MoviesPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState('');
 
-  const { addFromSearch, items } = useLibrary();
+  const { items } = useLibrary();
+  const navigate = useNavigate();
 
-  // Create a set of added external IDs for quick lookup
-  const addedIds = new Set(items.filter(item => item.type === 'movie').map(item => item.externalId));
+  const addedIds = useMemo(() => new Set(items.filter(item => item.type === 'movie').map(item => item.externalId)), [items]);
+  const ratingById = useMemo(() => {
+    const map = new Map<string, number | null>();
+    items
+      .filter(item => item.type === 'movie')
+      .forEach(item => map.set(item.externalId, item.yourRating ?? null));
+    return map;
+  }, [items]);
 
   useEffect(() => {
     const apiKey = import.meta.env.VITE_OMDB_API_KEY;
@@ -113,12 +121,11 @@ export default function MoviesPage() {
   };
 
   const handleSelectFeatured = (result: SearchResult) => {
-    addFromSearch('movie', result);
+    navigate(`/movies/${result.externalId}`);
   };
 
   const handleSelectSearch = (result: SearchResult) => {
-    addFromSearch('movie', result);
-    setMessage('Added to your library');
+    navigate(`/movies/${result.externalId}`);
   };
 
   return (
