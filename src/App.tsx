@@ -4,6 +4,9 @@ import MoviesPage from './pages/Movies';
 import BooksPage from './pages/Books';
 import MusicPage from './pages/Music';
 import InsightsPage from './pages/Insights';
+import MovieDetailPage from './pages/MovieDetail';
+import BookDetailPage from './pages/BookDetail';
+import MusicDetailPage from './pages/MusicDetail';
 
 function TopNav() {
   const base = 'px-4 py-2 rounded-full text-sm font-medium transition';
@@ -32,8 +35,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/movies" replace />} />
         <Route path="/movies" element={<MoviesPage />} />
+        <Route path="/movies/:id" element={<MovieDetailPage />} />
         <Route path="/books" element={<BooksPage />} />
+        <Route path="/books/:id" element={<BookDetailPage />} />
         <Route path="/music" element={<MusicPage />} />
+        <Route path="/music/:id" element={<MusicDetailPage />} />
         <Route path="/insights" element={<InsightsPage />} />
       </Routes>
     </div>
