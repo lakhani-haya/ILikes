@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SearchBar } from '../components/SearchBar';
 import { SearchResults } from '../components/SearchResults';
 import { searchBooks, getFeaturedBooksByIsbn } from '../providers/booksGoogle';
@@ -26,10 +27,17 @@ export default function BooksPage() {
   const [featuredLoading, setFeaturedLoading] = useState(false);
   const [featuredError, setFeaturedError] = useState<string | null>(null);
   
-  const { addFromSearch, items } = useLibrary();
+  const { items } = useLibrary();
+  const navigate = useNavigate();
 
-  // Create a set of added external IDs for quick lookup
-  const addedIds = new Set(items.filter(item => item.type === 'book').map(item => item.externalId));
+  const addedIds = useMemo(() => new Set(items.filter(item => item.type === 'book').map(item => item.externalId)), [items]);
+  const ratingById = useMemo(() => {
+    const map = new Map<string, number | null>();
+    items
+      .filter(item => item.type === 'book')
+      .forEach(item => map.set(item.externalId, item.yourRating ?? null));
+    return map;
+  }, [items]);
 
   useEffect(() => {
     const loadFeatured = async () => {
