@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { SearchResult, DetailsResult, ApiBook } from '../lib/types';
 import { formatYear, getImageUrl } from '../lib/utils';
+import { stripHtml } from '../lib/text';
 
 const API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
 const BASE_URL = 'https://www.googleapis.com/books/v1/volumes';
@@ -40,7 +41,7 @@ export async function searchBooks(query: string): Promise<SearchResult[]> {
         year: volumeInfo.publishedDate ? formatYear(volumeInfo.publishedDate) : 'Unknown',
         creator: volumeInfo.authors?.join(', ') || 'Unknown',
         genres: volumeInfo.categories || [],
-        description: volumeInfo.description || '',
+        description: stripHtml(volumeInfo.description),
         provider: 'google-books',
         externalId: book.id,
       };
@@ -73,7 +74,7 @@ export async function getBookDetails(bookId: string): Promise<DetailsResult | nu
       year: volumeInfo.publishedDate ? formatYear(volumeInfo.publishedDate) : 'Unknown',
       creator: volumeInfo.authors?.join(', ') || 'Unknown',
       genres: volumeInfo.categories || [],
-      description: volumeInfo.description || '',
+      description: stripHtml(volumeInfo.description),
       provider: 'google-books',
       externalId: response.data.id,
       runtime,
@@ -120,7 +121,7 @@ export async function getFeaturedBooksByIsbn(isbns: string[]): Promise<SearchRes
           image: getImageUrl(volumeInfo.imageLinks?.thumbnail),
           creator: volumeInfo.authors?.[0] || 'Unknown',
           genres: volumeInfo.categories || [],
-          description: volumeInfo.description || '',
+          description: stripHtml(volumeInfo.description),
           provider: 'google-books',
           externalId: book.id,
         }];
