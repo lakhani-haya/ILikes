@@ -71,10 +71,14 @@ export async function getMusicDetails(trackId: string): Promise<DetailsResult | 
       return null;
     }
 
-    const item = response.data.results.find(result => result.trackId?.toString() === trackId) || response.data.results[0];
-    if (!item.trackId) return null;
+    const item =
+      response.data.results.find(result => result.trackId?.toString() === trackId) ||
+      response.data.results.find(result => result.collectionId?.toString() === trackId) ||
+      response.data.results[0];
 
-    const id = item.trackId.toString();
+    if (!item.trackId && !item.collectionId) return null;
+
+    const id = (item.trackId ?? item.collectionId ?? '').toString();
     const creator = item.artistName || 'Unknown';
 
     return {
