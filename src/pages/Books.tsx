@@ -80,12 +80,11 @@ export default function BooksPage() {
   };
 
   const handleSelectFeatured = (result: SearchResult) => {
-    addFromSearch('book', result);
+    navigate(`/books/${result.externalId}`);
   };
 
   const handleSelectSearch = (result: SearchResult) => {
-    addFromSearch('book', result);
-    setMessage('Added to your library');
+    navigate(`/books/${result.externalId}`);
   };
 
   return (
@@ -105,10 +104,17 @@ export default function BooksPage() {
           <div className="flex items-end justify-between gap-4 mb-5">
             <div>
               <h2 className="text-xl font-semibold tracking-tight text-zinc-900">Search Results</h2>
-              <p className="text-sm text-zinc-500 mt-1">Click to add to your library</p>
+              <p className="text-sm text-zinc-500 mt-1">Click to view details</p>
             </div>
           </div>
-          <SearchResults results={results} onSelect={handleSelectSearch} isLoading={isLoading} error={error || undefined} addedIds={addedIds} />
+          <SearchResults
+            results={results}
+            onSelect={handleSelectSearch}
+            isLoading={isLoading}
+            error={error || undefined}
+            addedIds={addedIds}
+            ratingById={ratingById}
+          />
         </div>
       )}
 
@@ -134,7 +140,14 @@ export default function BooksPage() {
               Refresh
             </button>
           </div>
-          <SearchResults results={featured} onSelect={handleSelectFeatured} isLoading={featuredLoading} error={undefined} addedIds={addedIds} />
+          <SearchResults
+            results={featured}
+            onSelect={handleSelectFeatured}
+            isLoading={featuredLoading}
+            error={undefined}
+            addedIds={addedIds}
+            ratingById={ratingById}
+          />
         </div>
       )}
     </section>
