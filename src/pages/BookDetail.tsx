@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getBookDetails } from '../providers/booksGoogle';
 import { DetailsResult, SearchResult, Status } from '../lib/types';
 import { useLibrary } from '../hooks/useLibrary';
+import { stripHtml } from '../lib/text';
 
 const statusOptions: { value: Status; label: string }[] = [
   { value: 'wishlist', label: 'Planned' },
@@ -118,6 +119,8 @@ export default function BookDetailPage() {
     return entries;
   }, [details]);
 
+  const safeDescription = useMemo(() => stripHtml(details?.description), [details]);
+
   if (loading) {
     return (
       <section className="max-w-5xl mx-auto px-6 py-10">
@@ -143,7 +146,7 @@ export default function BookDetailPage() {
         </div>
         <div className="space-y-3">
           <h1 className="text-3xl font-semibold text-zinc-900 tracking-tight">{details.title}</h1>
-          <p className="text-zinc-600">{details.description || 'No description available.'}</p>
+          <p className="text-zinc-600">{safeDescription || 'No description available.'}</p>
           <div className="flex flex-wrap gap-2">
             {meta.map(item => (
               <span key={item.label} className="px-3 py-1 rounded-full bg-zinc-100 text-zinc-700 text-sm border border-zinc-200">
