@@ -37,27 +37,6 @@ export default function LibraryPage() {
         viewAllPath="/library/music"
         emptyCtaPath="/music"
       />
-
-      <div className="flex gap-3 pt-2">
-        <button
-          onClick={() => navigate('/movies')}
-          className="px-4 py-2 rounded-full bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800"
-        >
-          Add movies
-        </button>
-        <button
-          onClick={() => navigate('/books')}
-          className="px-4 py-2 rounded-full bg-white text-zinc-900 border border-zinc-200 text-sm font-medium hover:bg-zinc-50"
-        >
-          Add books
-        </button>
-        <button
-          onClick={() => navigate('/music')}
-          className="px-4 py-2 rounded-full bg-white text-zinc-900 border border-zinc-200 text-sm font-medium hover:bg-zinc-50"
-        >
-          Add music
-        </button>
-      </div>
     </section>
   );
 }
