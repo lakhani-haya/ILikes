@@ -7,6 +7,10 @@ import InsightsPage from './pages/Insights';
 import MovieDetailPage from './pages/MovieDetail';
 import BookDetailPage from './pages/BookDetail';
 import MusicDetailPage from './pages/MusicDetail';
+import LibraryPage from './pages/Library';
+import LibraryMoviesPage from './pages/LibraryMovies';
+import LibraryBooksPage from './pages/LibraryBooks';
+import LibraryMusicPage from './pages/LibraryMusic';
 
 function TopNav() {
   const base = 'px-4 py-2 rounded-full text-sm font-medium transition';
@@ -20,6 +24,7 @@ function TopNav() {
           <NavLink to="/movies" className={({ isActive }) => `${base} ${isActive ? active : inactive}`}>Movies</NavLink>
           <NavLink to="/books" className={({ isActive }) => `${base} ${isActive ? active : inactive}`}>Books</NavLink>
           <NavLink to="/music" className={({ isActive }) => `${base} ${isActive ? active : inactive}`}>Music</NavLink>
+          <NavLink to="/library" className={({ isActive }) => `${base} ${isActive ? active : inactive}`}>ILibrary</NavLink>
           <div className="flex-1" />
           <NavLink to="/insights" className={({ isActive }) => `${base} border border-zinc-200 ${isActive ? active : inactive}`}>Insights</NavLink>
         </div>
@@ -40,6 +45,10 @@ export default function App() {
         <Route path="/books/:id" element={<BookDetailPage />} />
         <Route path="/music" element={<MusicPage />} />
         <Route path="/music/:id" element={<MusicDetailPage />} />
+        <Route path="/library" element={<LibraryPage />} />
+        <Route path="/library/movies" element={<LibraryMoviesPage />} />
+        <Route path="/library/books" element={<LibraryBooksPage />} />
+        <Route path="/library/music" element={<LibraryMusicPage />} />
         <Route path="/insights" element={<InsightsPage />} />
       </Routes>
     </div>
