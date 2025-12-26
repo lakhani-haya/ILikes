@@ -27,3 +27,17 @@ export function getMonthYear(dateString: string): string {
   const date = new Date(dateString);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
+
+export function getAvailableGenres(items: any[]): string[] {
+  const genreSet = new Set<string>();
+  items.forEach((item) => {
+    if (item.genreSnapshot && Array.isArray(item.genreSnapshot)) {
+      item.genreSnapshot.forEach((g: string) => {
+        if (g && g.trim()) {
+          genreSet.add(g.trim());
+        }
+      });
+    }
+  });
+  return Array.from(genreSet).sort();
+}
