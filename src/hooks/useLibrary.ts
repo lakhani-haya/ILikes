@@ -40,6 +40,7 @@ export function useLibrary() {
         result.provider,
         result.externalId,
         result.title,
+        result.creator || 'Unknown',
         result.image,
         result.year,
         result.genres
