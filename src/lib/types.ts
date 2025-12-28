@@ -7,6 +7,7 @@ export interface MediaItem {
   provider: string;
   externalId: string;
   titleSnapshot: string;
+  creatorSnapshot: string;
   imageSnapshot: string;
   yearSnapshot: number;
   genreSnapshot: string[];

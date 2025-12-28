@@ -72,6 +72,7 @@ export const storage = {
     provider: string,
     externalId: string,
     titleSnapshot: string,
+    creatorSnapshot: string,
     imageSnapshot: string,
     yearSnapshot: number | string,
     genreSnapshot: string[]
@@ -89,6 +90,7 @@ export const storage = {
       provider,
       externalId,
       titleSnapshot: cleanText(titleSnapshot),
+      creatorSnapshot: cleanText(creatorSnapshot),
       imageSnapshot: cleanImage(imageSnapshot),
       yearSnapshot: sanitizeYear(yearSnapshot),
       genreSnapshot: cleanGenres(genreSnapshot),

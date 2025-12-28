@@ -62,7 +62,8 @@ export default function LibraryBooksPage() {
       result = result.filter(
         (item) =>
           item.titleSnapshot.toLowerCase().includes(q) ||
-          (item.creator ? item.creator.toLowerCase().includes(q) : false)
+          item.creatorSnapshot.toLowerCase().includes(q) ||
+          item.tags.some(tag => tag.toLowerCase().includes(q))
       );
     }
 
