@@ -3,48 +3,6 @@ import { MediaItem, ActivityEvent, Status } from './types';
 
 const STORAGE_KEY = 'ilikes_library';
 const ACTIVITY_KEY = 'ilikes_activity';
-const RATING_MIN = 0;
-const RATING_MAX = 5;
-
-function persistItems(items: MediaItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch (error) {
-    console.error('Error writing library:', error);
-  }
-}
-
-function persistActivity(activity: ActivityEvent[]): void {
-  try {
-    localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activity));
-  } catch (error) {
-    console.error('Error writing activity:', error);
-  }
-}
-
-function sanitizeYear(year: number | string): number {
-  if (typeof year === 'number' && Number.isFinite(year)) return year;
-  const parsed = parseInt(String(year), 10);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function normalizeRating(value: number | null): number | null {
-  if (value === null) return null;
-  const clamped = Math.min(RATING_MAX, Math.max(RATING_MIN, value));
-  return Math.round(clamped * 2) / 2;
-}
-
-function cleanGenres(genres: string[]): string[] {
-  return Array.isArray(genres) ? genres.filter(Boolean) : [];
-}
-
-function cleanText(text: string): string {
-  return text?.trim() || 'Untitled';
-}
-
-function cleanImage(url: string): string {
-  return url || '';
-}
 
 export const storage = {
   getAllItems(): MediaItem[] {
@@ -72,28 +30,21 @@ export const storage = {
     provider: string,
     externalId: string,
     titleSnapshot: string,
-    creatorSnapshot: string,
     imageSnapshot: string,
-    yearSnapshot: number | string,
+    yearSnapshot: number,
     genreSnapshot: string[]
   ): MediaItem {
     const items = this.getAllItems();
-    const existing = items.find(item => item.type === type && item.externalId === externalId);
-    if (existing) {
-      return existing;
-    }
-
     const now = new Date().toISOString();
     const newItem: MediaItem = {
       id: uuidv4(),
       type,
       provider,
       externalId,
-      titleSnapshot: cleanText(titleSnapshot),
-      creatorSnapshot: cleanText(creatorSnapshot),
-      imageSnapshot: cleanImage(imageSnapshot),
-      yearSnapshot: sanitizeYear(yearSnapshot),
-      genreSnapshot: cleanGenres(genreSnapshot),
+      titleSnapshot,
+      imageSnapshot,
+      yearSnapshot,
+      genreSnapshot,
       yourRating: null,
       yourReview: '',
       spoiler: false,
@@ -105,7 +56,7 @@ export const storage = {
       updatedAt: now,
     };
     items.push(newItem);
-    persistItems(items);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     this.addActivity('ADD', newItem.id, { type, externalId });
     return newItem;
   },
@@ -121,15 +72,14 @@ export const storage = {
       updatedAt: new Date().toISOString(),
     };
     items[index] = updatedItem;
-    persistItems(items);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     return updatedItem;
   },
 
   updateRating(id: string, rating: number | null): MediaItem | null {
-    const normalized = normalizeRating(rating);
-    const item = this.updateItem(id, { yourRating: normalized });
+    const item = this.updateItem(id, { yourRating: rating });
     if (item) {
-      this.addActivity('RATE', id, { rating: normalized });
+      this.addActivity('RATE', id, { rating });
     }
     return item;
   },
@@ -143,9 +93,7 @@ export const storage = {
   },
 
   updateStatus(id: string, status: Status): MediaItem | null {
-    const current = this.getItemById(id);
-    const consumedAt = status === 'completed' ? current?.consumedAt ?? new Date().toISOString() : current?.consumedAt ?? null;
-    const item = this.updateItem(id, { status, consumedAt });
+    const item = this.updateItem(id, { status });
     if (item) {
       this.addActivity('STATUS_CHANGE', id, { status });
     }
@@ -164,7 +112,7 @@ export const storage = {
     const items = this.getAllItems();
     const filtered = items.filter(item => item.id !== id);
     if (filtered.length === items.length) return false;
-    persistItems(filtered);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     return true;
   },
 
@@ -187,7 +135,7 @@ export const storage = {
       payload,
     };
     activity.push(event);
-    persistActivity(activity);
+    localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activity));
   },
 
   clearAll(): void {
@@ -195,3 +143,10 @@ export const storage = {
     localStorage.removeItem(ACTIVITY_KEY);
   },
 };
+
+export function useLibrary() {
+  return {
+    items: storage.getAllItems(),
+    activity: storage.getActivity(),
+  };
+}

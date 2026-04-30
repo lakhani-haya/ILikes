@@ -7,7 +7,6 @@ export interface MediaItem {
   provider: string;
   externalId: string;
   titleSnapshot: string;
-  creatorSnapshot: string;
   imageSnapshot: string;
   yearSnapshot: number;
   genreSnapshot: string[];
@@ -29,55 +28,45 @@ export interface ActivityEvent {
   payload: Record<string, unknown>;
 }
 
-export interface ApiMovieSearch {
-  imdbID: string;
-  Title: string;
-  Year: string;
-  Type?: string;
-  Poster?: string;
-}
-
 export interface ApiMovie {
   imdbID: string;
   Title: string;
-  Poster?: string;
+  Poster: string;
   Year: string;
-  Plot?: string;
-  Director?: string;
-  Genre?: string;
-  Runtime?: string;
-  imdbRating?: string;
+  Plot: string;
+  Director: string;
+  Genre: string;
+  Runtime: string;
+  imdbRating: string;
 }
 
 export interface ApiBook {
   id: string;
   volumeInfo: {
-    title?: string;
-    authors?: string[];
-    publishedDate?: string;
-    description?: string;
+    title: string;
+    authors: string[];
+    publishedDate: string;
+    description: string;
     imageLinks?: {
-      thumbnail?: string;
-      smallThumbnail?: string;
+      thumbnail: string;
+      smallThumbnail: string;
     };
-    categories?: string[];
-    pageCount?: number;
+    categories: string[];
+    pageCount: number;
   };
 }
 
 export interface ApiMusic {
-  trackId?: number;
-  trackName?: string;
-  artistName?: string;
-  collectionName?: string;
-  artworkUrl100?: string;
-  artworkUrl30?: string;
-  trackPrice?: number;
-  collectionId?: number;
-  releaseDate?: string;
-  primaryGenreName?: string;
-  kind?: string;
-  trackTimeMillis?: number;
+  trackId: number;
+  trackName: string;
+  artistName: string;
+  collectionName: string;
+  artworkUrl100: string;
+  artworkUrl30: string;
+  trackPrice: number;
+  releaseDate: string;
+  primaryGenreName: string;
+  kind: string;
 }
 
 export interface SearchResult {
