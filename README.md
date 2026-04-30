@@ -1,92 +1,132 @@
 # ILikes
 
+ILikes is a React + TypeScript app for discovering and tracking movies, books, and music in one place.
 
-ILikes is a personal media library application that allows users to discover, track, rate, and review movies, books, and music in one place. The application integrates multiple public APIs and provides a unified interface for managing and analyzing personal media preferences.
+You can:
+- search media from external providers,
+- save items to your personal library,
+- add status/rating/review metadata,
+- and view analytics in an insights dashboard.
 
-The goal of the project is to combine API integration, modern frontend development, and lightweight analytics to create a polished personal library experience.
+## Highlights
 
----
+- Multi-source discovery
+  - Movies: OMDb
+  - Books: Google Books
+  - Music: iTunes Search
+- Personal library workflow
+  - Add items from search results
+  - Track status: Planned, In Progress, Completed
+  - Save personal rating and review
+- Library management tools
+  - Search within your saved entries
+  - Filter by status/rating/genre
+  - Sort by recently added, title, rating, year, or status
+- Insights dashboard
+  - Total items, completion %, average rating
+  - Status and genre breakdowns
+  - Rating distribution
+  - Recently added/reviewed
+  - Monthly activity trends
+- Local-first persistence
+  - Library and activity log are stored in browser localStorage
 
-## Features
+## Screenshots
 
-### Media Discovery
-- Search and explore movies, books, and music
-- External data fetched from multiple APIs
-- Detailed media pages with metadata and descriptions
+### Home / Discovery
+![Main Page](Pictures/main_page.png)
 
-### Personal Library
-- Add movies, books, and music to a personal library
-- Track status such as **Planned**, **In Progress**, or **Completed**
-- Add ratings and written reviews
-- Hover previews showing rating, status, and review summary
+### Media Details
+![Media Detail Page](Pictures/media_page.png)
 
-### ILibrary Dashboard
-- Dedicated library page showing saved items grouped by media type
-- Movies, Books, and Music sections with preview grids
-- Hover expansion cards displaying user feedback
-- "View All" pages with filtering and sorting options
-
-### Filtering and Sorting
-- Search within your saved library
-- Filter by status, rating, or genre
-- Sort by rating, title, year, or recently added
+### Search + Saved State
+![Search and Saved](Pictures/search+saved.png)
 
 ### Insights Dashboard
-- Summary of library statistics
-- Completion metrics
-- Media distribution by type
-- Genre breakdowns
-- Rating distribution
-- Recently added and recently reviewed items
-
----
+![Insights](Pictures/insights.jpeg)
 
 ## Tech Stack
 
-### Frontend
-- React
+- React 18
 - TypeScript
-- Vite
+- Vite 5
 - Tailwind CSS
-- React Router
-
-### APIs
-- OMDb API (Movies)
-- Google Books API (Books)
-- iTunes Search API (Music)
-
-### State & Storage
-- Custom React hooks
-- LocalStorage persistence
-
----
+- React Router DOM
+- Axios
+- Vitest
 
 ## Project Structure
 
 ```text
-src
- ├── components
- │    ├── SearchBar
- │    ├── SearchResults
- │    ├── LibraryTile
- │    └── LibrarySection
- │
- ├── pages
- │    ├── Movies
- │    ├── Books
- │    ├── Music
- │    ├── Library
- │    ├── Insights
- │    └── Detail pages
- │
- ├── providers
- │    ├── moviesOmdb
- │    ├── booksGoogle
- │    └── musicItunes
- │
- ├── hooks
- │    └── useLibrary
- │
- └── lib
-      ├── types
-      └── utilities
+src/
+     analytics/     # analytics helpers + tests
+     components/    # reusable UI
+     hooks/         # custom hooks (library state)
+     lib/           # types, storage, insights, utilities
+     pages/         # route pages (discover, detail, library, insights)
+     providers/     # external API adapters
+```
+
+## Routes
+
+- `/movies`, `/movies/:id`
+- `/books`, `/books/:id`
+- `/music`, `/music/:id`
+- `/library`
+- `/library/movies`
+- `/library/books`
+- `/library/music`
+- `/insights`
+
+## Getting Started
+
+### 1) Install dependencies
+
+```bash
+npm install
+```
+
+### 2) Configure environment variables
+
+Copy `.env.example` to `.env` and set your API keys:
+
+```env
+VITE_OMDB_API_KEY=your_omdb_key
+VITE_GOOGLE_BOOKS_API_KEY=your_google_books_key
+VITE_ITUNES_API_KEY=optional
+```
+
+Notes:
+- OMDb and Google Books keys are required for full movie/book search.
+- iTunes search currently works without an API key.
+
+### 3) Run the app
+
+```bash
+npm run dev
+```
+
+Open the local URL shown by Vite (typically `http://localhost:5173`).
+
+## Scripts
+
+- `npm run dev` — start development server
+- `npm run build` — type-check and build for production
+- `npm run preview` — preview production build
+- `npm run lint` — run ESLint on source files
+- `npm test` — run Vitest tests
+- `npm run test:ui` — run Vitest with UI
+
+## Data Model Summary
+
+Each saved library item stores:
+- media type/provider/external ID
+- title/image/year/genres snapshot
+- user metadata (status, rating, review, spoiler flag, tags)
+- timestamps and revisit/completion fields
+
+This allows the app to keep a stable local history even if external metadata changes.
+
+## License
+
+Private project.
